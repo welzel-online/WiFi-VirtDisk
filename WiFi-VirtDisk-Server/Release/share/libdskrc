@@ -1,0 +1,25 @@
+[z80mbc2-d0]
+Description=Z20-MBC2 CP/M 2.2 DISK 0 ONLY (ONE RESERVED TRACK FOR CP/M 2.2)
+Sidedness=Alt
+Cylinders=512
+Heads=1
+Sectors=32
+SecBase=0
+SecSize=512
+DataRate=SD
+RWGap=42
+FmtGap=82
+FM=N
+Multitrack=Y
+SkipDeleted=Y
+
+;diskdef z80mbc2-d0
+;  seclen 512
+;  tracks 512
+;  sectrk 32
+;  blocksize 4096
+;  maxdir 512
+;  skew 0
+;  boottrk 1
+;  os 2.2
+;end

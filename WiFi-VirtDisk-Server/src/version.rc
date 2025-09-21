@@ -1,0 +1,41 @@
+// <a href="https://www.flaticon.com/de/kostenlose-icons/daten-speichern" title="daten speichern Icons">Daten speichern Icons erstellt von juicy_fish - Flaticon</a>
+IDI_ICON1       ICON    "vdServer.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+#include "version.h"
+1 VERSIONINFO
+ FILEVERSION FILEVER
+ PRODUCTVERSION PRODUCTVER
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040004e4"
+        BEGIN
+            VALUE "CompanyName", "Welzel-Online\0"
+            VALUE "FileDescription", "WiFi-VirtDisk-Server\0"
+            VALUE "FileVersion", STRFILEVER
+            VALUE "InternalName", "WiFi-VirtDisk-Server\0"
+            VALUE "LegalCopyright", "(c)2025 Welzel-Online\0"
+            VALUE "OriginalFilename", "WiFi-VirtDisk-Server.exe\0"
+            VALUE "ProductName", "WiFi-VirtDisk-Server\0"
+            VALUE "ProductVersion", STRPRODUCTVER
+            VALUE "Comments", STRVERDATE
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x400, 1252
+    END
+END

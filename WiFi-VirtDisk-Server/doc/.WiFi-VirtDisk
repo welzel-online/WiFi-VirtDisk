@@ -1,0 +1,5 @@
+[WiFi-VirtDisk]
+filePath=D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/files/
+diskPath=D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/disk/
+
+diskEmuFilename=DS0N00.DSK
