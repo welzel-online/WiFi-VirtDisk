@@ -11,27 +11,29 @@ Die WiFi-VirtDisk besteht aus drei Teilen, welche für die unterschiedlichen Auf
 * WiFi-VirtDisk Client (ESP8266)
 * WiFi-VirtDisk Server (PC mit Windows oder Linux)
 
-Nach dem Clonen des Repositories von GitHub können IOS und der WiFi-VirtDisk Client mit der Arduino IDE (getestet mit v2.3.6) kompiliert werden.
+Nach dem Clonen des Repositories von GitHub können das MBC2 IOS und der WiFi-VirtDisk Client mit der Arduino IDE (getestet mit v2.3.6) kompiliert werden.
 
 Für den WiFi-VirtDisk Client werden die Bibliotheken **WiFiManager** von *tzapu* und **DoubleResetDetector** von *Stephen Denne* benötigt, welche über den Bibliotheks-Manager installiert werden können.
 
-Der WiFi-VirtDisk Server wurde mit Visual Studio Code und WinLibs (https://winlibs.com) unter Windows 10/11 erstellt. Hierzu wird am besten das CMake Plugin verwendet.
+Der WiFi-VirtDisk Server wurde mit Visual Studio Code und WinLibs (https://winlibs.com) unter Windows 11 erstellt. Hierzu wird am besten das CMake Plugin verwendet.
 
 ## Inbetriebnahme
 
-Der WiFi-VirtDisk Client sollte nach Schaltplan an den SD-Kartenport des Z80-MBC2 angeschlossen werden. Die Debug-Funktionen zum betätigen des Reset- und User-Buttons sind optional.
+Der **WiFi-VirtDisk Client** sollte nach Schaltplan an den SD-Kartenport des Z80-MBC2 angeschlossen werden. Die Debug-Funktionen zum betätigen des Reset- und User-Buttons sind optional.
 
 > <span style="color: red;">**5V Versorgungsspannung beachten! Die 5V des PCs (USB) dürfen nicht mit den 5V (extern) des Z80-MBC2 verbunden werden! Nur die Masseverbindung ist erorderlich!**</span>
 
-Beim ersten Start des WiFI-VirtDisk Clients (ESP8266) ist dieser nicht konfiguriert. Dies wird durch eines schnelles Blinken der LED angezeigt. Er befindet sich dann im Access Point Modus und stellt ein eigenes WLAN mit der SSID **WiFi-VirtDisk Client AP** zur Verfügung. Mit einem Webbrowser kann dann unter der IP-Adresse **http://192.168.4.1** das Konfigurations-Portal aufgerufen werden. Hier kann jetzt das eigene WLAN (SSID) ausgewählt und das Passwort gesetzt werden.
+> Der WiFi-VirtDisk Client kann mit einem USB-Kabel am PC angeschlossen werden und stellt dann einen COM-Port bereit. Dieser ist mit 115200 Baud, 8N1, konfiguriert und zeigt Informationen zum Zustand an.
+
+Beim ersten Start des WiFI-VirtDisk Clients (ESP8266) ist dieser nicht konfiguriert. Dies wird durch ein schnelles Blinken der LED angezeigt. Er befindet sich dann im Access Point Modus und stellt ein eigenes WLAN mit der SSID **WiFi-VirtDisk Client AP** zur Verfügung. Mit einem Webbrowser kann dann unter der IP-Adresse **http://192.168.4.1** das Konfigurations-Portal aufgerufen werden. Hier kann jetzt das eigene WLAN (SSID) ausgewählt und das Passwort gesetzt werden.
 
 Zusätzlich wird hier die IP-Adresse des WiFi-VirtDisk Servers, sowie der Port (Standard: 12345) festgelegt. Der Port des Debug-Servers ist immer eine Nummer höher (Standard: 12346).
 
 Nach erfolgreichem Speichern sollte sich der Client mit dem konfigurierten WLAN verbinden. Während des Verbindungsaufbaus blinkt die LED langsam. Ist die Verbindung hergestellt leuchtet die LED dauerhaft.
 
-Danach versucht der WiFi-VirtDisk Client sich mit dem Server zu verbinden. Wenn der Client mit einem USB-Kabel am PC angeschlossen ist können über den virtuellen COM-Port Informationen zum Zustand angezeigt werden.
+Danach versucht der WiFi-VirtDisk Client sich mit dem Server zu verbinden.
 
-Der WiFi-VirtDisk Server wird in einem Terminal gestartet und benötigt eine Port-Freigabe für den Haupt-Port und den Debug-Port.
+Der **WiFi-VirtDisk Server** wird in einem Terminal gestartet und benötigt eine Port-Freigabe für den Haupt-Port und den Debug-Port.
 
 Der Server liest beim start die Konfiguration aus der Datei ".WiFi-VirtDisk" im selben Verzeichnis. Diese ist im INI-Dateiformat.
 
@@ -54,8 +56,7 @@ Der Server liest beim start die Konfiguration aus der Datei ".WiFi-VirtDisk" im 
 
 > Im Moment kann nur das Disk-Image *DS0N00.DSK* emuliert werden, da dessen Geometrie (CP/M 2.2, System-Spur) fest hinterlegt ist!
 
-Nach dem Start des Servers gibt dieser Informationen zur Konfiguration und der Ports aus. Wenn ein Client eine Verbindung aufbaut, wird dies angezeigt.
-Weiterhin gibt der Server Informationen zu den ausgeführten Befehlen und angeforderten Daten aus.
+Nach dem Start des Servers gibt dieser Informationen zur Konfiguration und der Ports aus. Wenn ein Client eine Verbindung aufbaut, wird dies angezeigt. Weiterhin gibt der Server Informationen zu den ausgeführten Befehlen und angeforderten Daten aus.
 
 ## Einfacher Start
 

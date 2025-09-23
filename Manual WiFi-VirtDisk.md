@@ -11,18 +11,19 @@ The WiFi-VirtDisk consists of three parts, each created for different tasks:
 * WiFi-VirtDisk Client (ESP8266)
 * WiFi-VirtDisk Server (PC with Windows or Linux)
 
-After cloning the repository from GitHub, IOS and the WiFi-VirtDisk Client can be compiled with the Arduino IDE (tested with v2.3.6).
+After cloning the repository from GitHub, the MBC2 IOS and the WiFi-VirtDisk Client can be compiled with the Arduino IDE (tested with v2.3.6).
 
 For the WiFi-VirtDisk Client, the libraries **WiFiManager** by *tzapu* and **DoubleResetDetector** by *Stephen Denne* are required, which can be installed via the library manager.
 
-The WiFi-VirtDisk Server was created with Visual Studio Code and WinLibs (https://winlibs.com) under Windows 10/11. It is best to use the CMake plugin for this.
-
+The WiFi-VirtDisk Server was created with Visual Studio Code and WinLibs (https://winlibs.com) under Windows 11. It is best to use the CMake plugin for this.
 
 ## Commissioning
 
-The WiFi-VirtDisk Client should be connected to the SD card port of the Z80-MBC2 according to the schematic. The debug functions for operating the reset and user buttons are optional.
+The **WiFi-VirtDisk Client** should be connected to the SD card port of the Z80-MBC2 according to the schematic. The debug functions for operating the reset and user buttons are optional.
 
 > <span style="color: red;">**Observe 5V supply voltage! The 5V from the PC (USB) must not be connected to the 5V (external) of the Z80-MBC2! Only the ground connection is required!**</span>
+
+> The WiFi-VirtDisk Client can be connected to the PC via USB cable and then provides a COM port. This is configured with 115200 baud, 8N1, and displays information about the status.
 
 When the WiFi-VirtDisk Client (ESP8266) is started for the first time, it is not configured. This is indicated by a fast blinking LED. It then operates in Access Point mode and provides its own WLAN with the SSID **WiFi-VirtDisk Client AP**. You can then access the configuration portal with a web browser at the IP address **http://192.168.4.1**. Here you can select your own WLAN (SSID) and set the password.
 
@@ -30,9 +31,9 @@ Additionally, the IP address of the WiFi-VirtDisk Server and the port (default: 
 
 After saving successfully, the client should connect to the configured WLAN. While connecting, the LED blinks slowly. Once the connection is established, the LED stays on.
 
-Afterwards, the WiFi-VirtDisk Client tries to connect to the server. If the client is connected to the PC via USB cable, information about the status can be displayed via the virtual COM port.
+Afterwards, the WiFi-VirtDisk Client tries to connect to the server.
 
-The WiFi-VirtDisk Server is started in a terminal and requires a port release for the main port and the debug port.
+The **WiFi-VirtDisk Server** is started in a terminal and requires a port release for the main port and the debug port.
 
 On startup, the server reads the configuration from the file ".WiFi-VirtDisk" in the same directory. This file is in INI format.
 

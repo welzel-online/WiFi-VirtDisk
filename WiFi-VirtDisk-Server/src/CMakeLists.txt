@@ -1,39 +1,12 @@
-cmake_minimum_required( VERSION 3.0...3.31 )
-
-
-# ${version_h_fake} is used here,
-# because we rely on that file being detected as missing
-# every build so that the real header "version.h" is updated.
+#******************************************************************************
+# Main CMake project file
 #
-# Keep this until we find a better way to resolve!
+# Copyright (c) 2025 by Welzel-Online
+#******************************************************************************
+cmake_minimum_required( VERSION 3.10 )
 
-set(version_h_real "${CMAKE_SOURCE_DIR}/version.h")
-set(version_h_fake "${CMAKE_SOURCE_DIR}/version.h_fake")
-
-if(EXISTS ${version_h_fake})
-        message(FATAL_ERROR "File \"${version_h_fake}\" found, this should never be created, remove!")
-endif()
-
-# a custom target that is always built
-add_custom_target(versioninfo ALL
-        DEPENDS ${version_h_fake})
-
-# creates version.h using cmake script
-add_custom_command(
-        OUTPUT
-                ${version_h_fake}  # ensure we always run
-                ${version_h_real}
-        COMMAND SubWCRev ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src/version.in ${CMAKE_SOURCE_DIR}/src/version.h)
-
-# version.h is a generated file
-set_source_files_properties(
-        ${version_h_real}
-        PROPERTIES GENERATED TRUE
-        HEADER_FILE_ONLY TRUE)
-
-unset(version_h_real)
-unset(version_h_fake)
-
+# Include the versioning script
+include( "version.cmake" )
 
 
 #SET(CMAKE_CXX_FLAGS "-O3")
