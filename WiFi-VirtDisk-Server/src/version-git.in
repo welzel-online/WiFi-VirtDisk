@@ -12,7 +12,7 @@
 
 
 /******************************************************************* Defines **/
-#define WIFI_VIRTDISK_SERVER_REVISION   "0.0.1 ($WCREV=7$)"
+#define WIFI_VIRTDISK_SERVER_REVISION   "1.0.0 ($WCREV=7$)"
 
 #define FILEVER             1,0,0,0
 #define PRODUCTVER          1,0,0,0
