@@ -28,7 +28,7 @@ Der **WiFi-VirtDisk Client** sollte nach Schaltplan an den SD-Kartenport des Z80
 Beim ersten Start des WiFI-VirtDisk Clients (ESP8266) ist dieser nicht konfiguriert. Dies wird durch ein schnelles Blinken der LED angezeigt. Er befindet sich dann im Access Point Modus und stellt ein eigenes WLAN mit der SSID **WiFi-VirtDisk Client AP** zur Verfügung. Mit einem Webbrowser kann dann unter der IP-Adresse **http://192.168.4.1** das Konfigurations-Portal aufgerufen werden.
 
 <figure>
-    <img src="doc/images/Screenshot_VirtDisk-Configuration.png" width="300" style="display: block; margin: 0 auto"
+    <img src="images/Screenshot_VirtDisk-Configuration.png" width="300" style="display: block; margin: 0 auto"
          alt="WiFi-VirtDisk Configuration">
 </figure>
 
@@ -37,7 +37,7 @@ Hier kann jetzt das eigene WLAN (SSID) ausgewählt und das Passwort gesetzt werd
 Zusätzlich wird hier die IP-Adresse des WiFi-VirtDisk Servers, sowie der Port (Standard: 12345) festgelegt. Der Port des Debug-Servers ist immer eine Nummer höher (Standard: 12346).
 
 <figure>
-    <img src="doc/images/Screenshot_WiFi-Setup.png" width="300" style="display: block; margin: 0 auto"
+    <img src="images/Screenshot_WiFi-Setup.png" width="300" style="display: block; margin: 0 auto"
          alt="WiFi-VirtDisk WiFi Setup">
 </figure>
 
@@ -48,7 +48,7 @@ Danach versucht der WiFi-VirtDisk Client sich mit dem Server zu verbinden.
 Der **WiFi-VirtDisk Server** wird in einem Terminal gestartet und benötigt eine Port-Freigabe für den Haupt-Port und den Debug-Port.
 
 <figure>
-    <img src="doc/images/Screenshot_WiFi-VirtDisk-Server.png" width="600" style="display: block; margin: 0 auto"
+    <img src="images/Screenshot_WiFi-VirtDisk-Server.png" width="600" style="display: block; margin: 0 auto"
          alt="WiFi-VirtDisk-Server start-up">
 </figure>
 
@@ -90,12 +90,12 @@ Mit dieser Konfiguration verhält sich der Z80-MBC2 wie mit einer SD-Karte.
 Die Entwicklung von Anwendungen für CP/M 2.2 wird stark vereinfacht, wenn ein Disk-Image emuliert wird. Auf diese Weise können Programme, welche unter Windows crosskompiliert wurden, direkt nach dem Erstellen in das Verzeichnis des emulierten Disk-Images kopiert werden. Sie stehen dann sofort unter CP/M zur Verfügung und es entfällt das kopieren auf SD-Karte oder das Hochladen mit XModem.
 
 <figure>
-    <img src="doc/images/Screenshot_Z80-MBC2.png" width="500" style="display: block; margin: 0 auto"
+    <img src="images/Screenshot_Z80-MBC2.png" width="500" style="display: block; margin: 0 auto"
          alt="Z80-MBC2 CP/M 2.2 start-up">
 </figure>
 
 
 <figure>
-    <img src="doc/images/Screenshot_Z80-MBC2_User.png" width="500" style="display: block; margin: 0 auto"
+    <img src="images/Screenshot_Z80-MBC2_User.png" width="500" style="display: block; margin: 0 auto"
          alt="Z80-MBC2 setup">
 </figure>
