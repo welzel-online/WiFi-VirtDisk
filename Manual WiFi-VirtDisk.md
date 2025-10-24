@@ -1,3 +1,4 @@
+
 # WiFi-VirtDisk Manual (Quick Guide)
 
 Author: Christian Welzel (https://www.welzel-online.ch)
@@ -25,15 +26,32 @@ The **WiFi-VirtDisk Client** should be connected to the SD card port of the Z80-
 
 > The WiFi-VirtDisk Client can be connected to the PC via USB cable and then provides a COM port. This is configured with 115200 baud, 8N1, and displays information about the status.
 
-When the WiFi-VirtDisk Client (ESP8266) is started for the first time, it is not configured. This is indicated by a fast blinking LED. It then operates in Access Point mode and provides its own WLAN with the SSID **WiFi-VirtDisk Client AP**. You can then access the configuration portal with a web browser at the IP address **http://192.168.4.1**. Here you can select your own WLAN (SSID) and set the password.
+When the WiFi-VirtDisk Client (ESP8266) is started for the first time, it is not configured. This is indicated by a fast blinking LED. It then operates in Access Point mode and provides its own WLAN with the SSID **WiFi-VirtDisk Client AP**. You can then access the configuration portal with a web browser at the IP address **http://192.168.4.1**.
+
+<figure>
+    <img src="doc/images/Screenshot_VirtDisk-Configuration.png" width="300" style="display: block; margin: 0 auto"
+         alt="WiFi-VirtDisk Configuration">
+</figure>
+
+Here you can select your own WLAN (SSID) and set the password.
 
 Additionally, the IP address of the WiFi-VirtDisk Server and the port (default: 12345) are set here. The debug server port is always one number higher (default: 12346).
+
+<figure>
+    <img src="doc/images/Screenshot_WiFi-Setup.png" width="300" style="display: block; margin: 0 auto"
+         alt="WiFi-VirtDisk WiFi Setup">
+</figure>
 
 After saving successfully, the client should connect to the configured WLAN. While connecting, the LED blinks slowly. Once the connection is established, the LED stays on.
 
 Afterwards, the WiFi-VirtDisk Client tries to connect to the server.
 
 The **WiFi-VirtDisk Server** is started in a terminal and requires a port release for the main port and the debug port.
+
+<figure>
+    <img src="doc/images/Screenshot_WiFi-VirtDisk-Server.png" width="600" style="display: block; margin: 0 auto"
+         alt="WiFi-VirtDisk-Server start-up">
+</figure>
 
 On startup, the server reads the configuration from the file ".WiFi-VirtDisk" in the same directory. This file is in INI format.
 
@@ -66,8 +84,18 @@ For a simple start, it is recommended to extract the entire contents of the SD c
 
 With this configuration, the Z80-MBC2 behaves as if it had an SD card.
 
-<div style="page-break-after: always;"></div>
+<!-- <div style="page-break-after: always;"></div> -->
 
 ## Development for the Z80-MBC2
 
 Developing applications for CP/M 2.2 is greatly simplified when a disk image is emulated. In this way, programs cross-compiled under Windows can be copied directly into the directory of the emulated disk image after creation. They are then immediately available under CP/M, eliminating the need to copy to an SD card or upload via XModem.
+
+<figure>
+    <img src="doc/images/Screenshot_Z80-MBC2.png" width="500" style="display: block; margin: 0 auto"
+         alt="Z80-MBC2 CP/M 2.2 start-up">
+</figure>
+
+<figure>
+    <img src="doc/images/Screenshot_Z80-MBC2_User.png" width="500" style="display: block; margin: 0 auto"
+         alt="Z80-MBC2 setup">
+</figure>
