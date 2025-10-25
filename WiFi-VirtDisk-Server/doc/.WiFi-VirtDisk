@@ -1,5 +1,8 @@
 [WiFi-VirtDisk]
+serverPort=12345
 filePath=D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/files/
-diskPath=D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/disk/
 
+[EmuDisk0]
+diskEmuPath=D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/disk/
 diskEmuFilename=DS0N00.DSK
+diskEmuFormat=z80mbc2-d0

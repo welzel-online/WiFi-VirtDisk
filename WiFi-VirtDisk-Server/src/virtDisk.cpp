@@ -11,6 +11,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <vector>
+#include <algorithm> // für std::find
 
 // CP/M Tools
 #include "config.h"
@@ -30,9 +32,10 @@
 vdData_t vdData;
 
 extern std::string filePath;
-extern std::string diskPath;
 
-extern std::string diskEmuFilename;
+extern std::vector<std::string> diskEmuPath;
+extern std::vector<std::string> diskEmuFilename;
+extern std::vector<std::string> diskEmuFormat;
 
 // Variables for rcpmfs
 struct cpmSuperBlock drive;
@@ -41,8 +44,9 @@ dsk_err_t     err;
 const char   *errStr = NULL;
 unsigned char sector[512];
 
-std::string format = "z80mbc2-d0";
-std::string devopts = "rcpmfs," + format;
+std::string diskPath;
+std::string format;     // = "z80mbc2-d0";
+std::string devopts;    // = "rcpmfs," + format;
 
 
 /******************************************************* Functions / Methods **/
@@ -84,6 +88,7 @@ std::string devopts = "rcpmfs," + format;
 int vdProcessCmd( char* buffer )
 {
     int         retVal = -1;
+    bool        emuDiskFound = false;
     vdPacket_t  vd;
     std::string tempFilename;
 
@@ -105,7 +110,20 @@ int vdProcessCmd( char* buffer )
         case VD_CMD_SEL_FILE:
             vdData.filename.assign( vd.packet.filename );
 
-            if( vdData.filename == diskEmuFilename )
+            // Check if the selected file is an emulated disk image
+            for( size_t i = 0; i < diskEmuFilename.size(); i++ )
+            {
+                if( vdData.filename == diskEmuFilename[i] )
+                {
+                    diskPath = diskEmuPath[i];
+                    format   = diskEmuFormat[i];
+                    devopts  = "rcpmfs," + format;
+                    emuDiskFound = true;
+                    break;
+                }
+            }
+
+            if( emuDiskFound == true )
             {
                 // Check for previous open file
                 if( drive.dev.opened == 1 )
@@ -180,7 +198,10 @@ int vdProcessCmd( char* buffer )
             {
                 message( MsgType::INFO, "VirtDisk Command: Read File: " + tempFilename );
 
-                if( vdData.filename == diskEmuFilename )
+                // if( vdData.filename == diskEmuFilename )
+                auto it = std::find( diskEmuFilename.begin(), diskEmuFilename.end(), vdData.filename );
+
+                if( it != diskEmuFilename.end() )
                 {
                     dsk_lsect_t secNum = (vdData.filePos / 512);
                     err = dsk_lread( drive.dev.dev, &drive.dev.geom, sector, secNum );
@@ -239,7 +260,10 @@ int vdProcessCmd( char* buffer )
 
             if( vdData.filename == tempFilename )
             {
-                if( vdData.filename == diskEmuFilename )
+                // if( vdData.filename == diskEmuFilename )
+                auto it = std::find( diskEmuFilename.begin(), diskEmuFilename.end(), vdData.filename );
+
+                if( it != diskEmuFilename.end() )
                 {
                     dsk_lsect_t secNum = (vdData.filePos / 512);
                     memcpy( sector, (char*)((vdPacket_t*)buffer)->packet.data, sizeof(vd.packet.data) );
@@ -280,7 +304,10 @@ int vdProcessCmd( char* buffer )
 
             if( vdData.filename == tempFilename )
             {
-                if( vdData.filename == diskEmuFilename )
+                // if( vdData.filename == diskEmuFilename )
+                auto it = std::find( diskEmuFilename.begin(), diskEmuFilename.end(), vdData.filename );
+
+                if( it != diskEmuFilename.end() )
                 {
                     vdData.filePos = fileOffset;    // Save the current file position
 

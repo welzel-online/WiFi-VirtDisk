@@ -67,12 +67,15 @@ bool gDbgDataReady = false;
 // Configuration data
 std::string serverPort    = "12345";    // WiFi-VirtDisk Portnummer
 std::string dbgServerPort = "12346";    // Debug Server Portnummer
+std::string filePath      = "D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/files/";
 
-std::string filePath = "D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/files/";
-std::string diskPath = "D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/disk/";
+std::vector<std::string> diskEmuPath;
+std::vector<std::string> diskEmuFilename;
+std::vector<std::string> diskEmuFormat;
 
-std::string diskEmuFilename = "DS0N00.DSK";
-
+std::string defaultDiskEmuPath      = "D:/Projekte/WiFi-VirtDisk/WiFi-VirtDisk-Server/testData/disk/";
+std::string defaultDiskEmuFilename  = "DS0N00.DSK";
+std::string defaultDiskEmuFormat    = "z80mbc2-d0";
 
 extern vdData_t vdData;
 extern struct cpmSuperBlock drive;
@@ -108,7 +111,7 @@ bool readConfig( void )
 
         // Get server port from configuration file
         const char* serverPortIni = vdIni.GetValue( "WiFi-VirtDisk", "serverPort", serverPort.c_str() );
-        if( serverPortIni != NULL )
+        if( serverPortIni != nullptr )
         {
             serverPort = serverPortIni;
             dbgServerPort = std::to_string(std::stoi(serverPort) + 1);  // Use the next port number
@@ -117,27 +120,41 @@ bool readConfig( void )
 
         // Get file path from configuration file
         const char* filePathIni = vdIni.GetValue( "WiFi-VirtDisk", "filePath", filePath.c_str() );
-        if( filePathIni != NULL )
+        if( filePathIni != nullptr )
         {
             filePath = filePathIni;
             message( MsgType::INFO, "File path: " + filePath );
         }
 
-        // Get disk path from configuration file
-        const char* diskPathIni = vdIni.GetValue( "WiFi-VirtDisk", "diskPath", diskPath.c_str() );
-        if( diskPathIni != NULL )
+        // Get number of emulated disks and parameters from configuration file
+        int diskNum = 0;
+        do
         {
-            diskPath = diskPathIni;
-            message( MsgType::INFO, "Disk path: " + diskPath );
-        }
+            // Get section name
+            std::string section = "EmuDisk" + std::to_string(diskNum);
 
-        // Get the disk emulation file name from configuration file
-        const char* diskEmuFilenameIni = vdIni.GetValue( "WiFi-VirtDisk", "diskEmuFile", diskEmuFilename.c_str() );
-        if( diskEmuFilenameIni != NULL )
-        {
-            diskEmuFilename = diskEmuFilenameIni;
-            message( MsgType::INFO, "Disk emulation file: " + diskEmuFilename );
-        }
+            // Get the disk emulation file name from configuration file
+            const char* diskEmuFilenameIni = vdIni.GetValue( section.c_str(), "diskEmuFilename", nullptr );
+            // Get disk path from configuration file
+            const char* diskEmuPathIni = vdIni.GetValue( section.c_str(), "diskEmuPath", nullptr );
+            // Get disk format from configuration file
+            const char* diskEmuFormatIni = vdIni.GetValue( section.c_str(), "diskEmuFormat", nullptr );
+
+            if( diskEmuFilenameIni != nullptr && diskEmuPathIni != nullptr && diskEmuFormatIni != nullptr )
+            {
+                diskEmuFilename.push_back( std::string(diskEmuFilenameIni) );
+                diskEmuPath.push_back( std::string(diskEmuPathIni) );
+                diskEmuFormat.push_back( std::string(diskEmuFormatIni) );
+
+                message( MsgType::INFO, "Emulated disk " + std::to_string(diskNum) + ": " + diskEmuFilename.back() + " (" + diskEmuFormat.back() + ")\r\n" +
+                                        "                       " + diskEmuPath.back() );
+                // message( MsgType::INFO, "           Path: " + diskEmuPath.back() );
+            }
+            // else
+            // {
+            //     message( MsgType::ERR, "Incomplete configuration for emulated disk " + std::to_string(diskNum) + ", skipping" );
+            // }
+        } while( ++diskNum < 4 ); // Currently only 4 emulated disks are supported
     }
     else
     {
@@ -314,8 +331,6 @@ int main( int argc, char* argv[] )
     ASocket::Socket oldTcpClient = INVALID_SOCKET;
     ASocket::Socket dbgClient;
     ASocket::Socket oldDbgClient = INVALID_SOCKET;
-    // const std::string PORT     = "12345"; // WiFi-VirtDisk Portnummer
-    // const std::string DBG_PORT = "12346"; // Debug Server Portnummer
 
     int    key;
     bool   isSpecial;

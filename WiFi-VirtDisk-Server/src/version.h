@@ -12,19 +12,19 @@
 
 
 /******************************************************************* Defines **/
-#define WIFI_VIRTDISK_SERVER_REVISION   "1.0.0 (3f0b619)"
+#define WIFI_VIRTDISK_SERVER_REVISION   "0.0.1 (d57b10b)"
 
 #define FILEVER             1,0,0,0
 #define PRODUCTVER          1,0,0,0
-#define STRFILEVER          "1, 0, 0, 3f0b619\0"
-#define STRPRODUCTVER       "1, 0, 0, 3f0b619\0"
-#define STRVERDATE          "23.09.2025\0"
+#define STRFILEVER          "1, 0, 0, d57b10b\0"
+#define STRPRODUCTVER       "1, 0, 0, d57b10b\0"
+#define STRVERDATE          "24.10.2025\0"
 
 // #define CM_VERMAJOR         1
 // #define CM_VERMINOR         0
 // #define CM_VERMICRO         0
-// #define CM_VERBUILD         3f0b619
-// #define CM_VERDATE          "2025/09/23 19:08:10"
+// #define CM_VERBUILD         d57b10b
+// #define CM_VERDATE          "2025/10/24 16:30:26"
 
 
 #endif
