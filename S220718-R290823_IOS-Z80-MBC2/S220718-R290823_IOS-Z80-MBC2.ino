@@ -325,7 +325,7 @@ byte          sysTickTime  = 100;         // Period in milliseconds of the Z80 S
 byte          RxDoneFlag = 1;             // This flag is set (= 1) soon after a Serial Rx operation (used for Rx interrupt control)
 byte          cpmWarmBootFlg = 0;         // This flag enable/disable (1/0) the message "CP/M WARM BOOT" if 
                                           //  the CP/M CBIOS supports this switch (see the SETOPT Opcode)
-char          autoBootAddrStr[6];         // AUTOBOOT address input string, 5\0 => 6 characters for uint16
+char          autoBootAddrStr[7];         // AUTOBOOT address input string, 6\0 => 7 characters for uint16
 uint16_t      autoBootAddr;               // AUTOBOOT boot address (start address)
 
 // DS3231 RTC variables
@@ -644,10 +644,11 @@ void setup()
 
         case '4':                                   // Change the AUTOBOOT start address
           // Get autoboot start address
-          Serial.println(F("\r\nEnter AUTOBOOT start address (dec), ESC to exit:"));
-          if( input( autoBootAddrStr, 5, 1 ) == true )
+          Serial.println(F("\r\nEnter AUTOBOOT start address, ESC to exit:"));
+          // if( input( autoBootAddrStr, 6, 2 ) == true )
+          if( input( autoBootAddrStr, 6, 2 ) == true )
           {
-            unsigned long tempAddr = strtoul( autoBootAddrStr, NULL, 10 );
+            unsigned long tempAddr = strtoul( autoBootAddrStr, NULL, 0 );
             if( tempAddr <= 65535 )
             {
               autoBootAddr = tempAddr;
@@ -883,6 +884,11 @@ void setup()
     // Read the selected file from SD and load it into RAM until an EOF is reached
     Serial.print(F("IOS: Loading boot program ("));
     Serial.print(fileNameSD);
+    if( fileNameSD == "AUTOBOOT.BIN" )
+    {
+      Serial.print(", 0x");
+      Serial.print((unsigned long)autoBootAddr, HEX);
+    }
     Serial.print(F(")..."));
     do
     // If an error occurs repeat until error disappears (or the user forces a reset)
@@ -2917,6 +2923,9 @@ void printOsName(byte currentDiskSet)
 
 // ------------------------------------------------------------------------------
 
+// inMode = 0: all characters
+// inMode = 1: number input (0-9)
+// inMode = 2: hex number input (0-9, A-F, X)
 bool input( char* inBuf, uint8_t inCnt, uint8_t inMode )
 {
   static uint8_t ndx = 0;
@@ -2941,7 +2950,7 @@ bool input( char* inBuf, uint8_t inCnt, uint8_t inMode )
           if( ndx >= (inCnt - 1) ) { ndx = (inCnt - 1); }
 
           // Check for number input
-          if( inMode != 0 )
+          if( inMode == 1 )
           {
             // Is inChar a number?
             if( ( inChar >= '0' ) && ( inChar <= '9' ) )
@@ -2949,6 +2958,17 @@ bool input( char* inBuf, uint8_t inCnt, uint8_t inMode )
               *(inBuf + ndx) = inChar;  // Save character    
               ndx++;
             }
+          }
+          else if( inMode == 2 )
+          {
+            // Is inChar a number or x?
+            inChar = toUpperCase( inChar );
+            if( ( ( inChar >= '0' ) && ( inChar <= '9' ) ) || ( ( inChar >= 'A' ) && ( inChar <= 'F' ) ) || ( inChar == 'X' ) )
+            {
+              if( inChar == 'X' ) { inChar = toLowerCase( inChar ); }   // Beautifying the 'x' :)
+              *(inBuf + ndx) = inChar;  // Save character    
+              ndx++;
+            }            
           }
           else
           {
@@ -2958,7 +2978,7 @@ bool input( char* inBuf, uint8_t inCnt, uint8_t inMode )
         }
         *(inBuf + ndx) = '\0';      // Terminate string
         
-        // Print file name
+        // Print input
         Serial.print( '\r' );
         for( byte i = 0; i <= inCnt; i++ ) { Serial.print(" "); }
         Serial.print( '\r' );
