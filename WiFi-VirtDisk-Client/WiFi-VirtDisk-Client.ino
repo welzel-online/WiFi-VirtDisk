@@ -120,7 +120,7 @@ void wm_saveConfigCB( void )
 {
   DBG_PRINTLN( "WiFi credentials saved." );
 
-  timer.attach_ms( 250, onTick );
+  // timer.attach_ms( 250, onTick );
 
   vdSave = true;
 }
@@ -229,21 +229,21 @@ void setup( void )
   // Check, if we should save the VirtDisk parameters
   if( vdSave )
   {
-    // vdConfig.version = VD_CONFIG_VERSION;
-    // strncpy( vdConfig.vdServer, custom_vdServer.getValue(), sizeof(vdConfig.vdServer) );
-    // // Check for valid port number
-    // if( atoi( custom_vdPort.getValue() ) != 0 )
-    // {
-    //   strncpy( vdConfig.vdPort, custom_vdPort.getValue(), sizeof(vdConfig.vdPort) );
-    // }
-    // else
-    // {
-    //   strncpy( vdConfig.vdPort, VD_DEFAULT_PORT, sizeof(vdConfig.vdPort) );
-    // }
+    vdConfig.version = VD_CONFIG_VERSION;
+    strncpy( vdConfig.vdServer, custom_vdServer.getValue(), sizeof(vdConfig.vdServer) );
+    // Check for valid port number
+    if( atoi( custom_vdPort.getValue() ) != 0 )
+    {
+      strncpy( vdConfig.vdPort, custom_vdPort.getValue(), sizeof(vdConfig.vdPort) );
+    }
+    else
+    {
+      strncpy( vdConfig.vdPort, VD_DEFAULT_PORT, sizeof(vdConfig.vdPort) );
+    }
     
 
-    // EEPROM.put( EEPROM_CONFIG_ADR, vdConfig );
-    // EEPROM.commit();
+    EEPROM.put( EEPROM_CONFIG_ADR, vdConfig );
+    EEPROM.commit();
 
     vdSave = false;
 

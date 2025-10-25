@@ -54,7 +54,7 @@ bool waitForTcpData( void )
   int  dataCnt = 0;
   uint16_t loop = 0;
 
-  while( loop < 250 )
+  while( loop < 500 )
   {
     dataCnt = tcpClient.available();
     if( dataCnt == 536 )
@@ -108,7 +108,7 @@ void vdProcessCmd( void )
 
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         // Init checksum
@@ -152,7 +152,7 @@ void vdProcessCmd( void )
 
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         // Init checksum
@@ -184,7 +184,7 @@ void vdProcessCmd( void )
           // Receive data from server
           if( waitForTcpData() )
           {
-            DBGA_PRINTLN( "WifiClient select file" );
+            DBGA_PRINTLN( "Answer PC: WifiClient select file" );
 
             tcpClient.read( vd.rawData, sizeof(vd.rawData) );
 
@@ -217,7 +217,7 @@ void vdProcessCmd( void )
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
         // Debug
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         offset     = dataBuf[1];
@@ -238,7 +238,7 @@ void vdProcessCmd( void )
           {
             DBG_PRINTLN( "VD_CMD_RD_FILE" );
 
-            DBGA_PRINTLN( "Get data from server" );
+            DBGA_PRINTLN( "Request data from the PC server" );
 
             // No data - Fill packet for server
             vd.packet.cmd = VD_CMD_RD_FILE;
@@ -251,7 +251,7 @@ void vdProcessCmd( void )
             // Receive data from server
             if( waitForTcpData() )
             {
-              DBGA_PRINTLN( "WifiClient read data" );
+              DBGA_PRINTLN( "Answer PC: WifiClient read data" );
 
               tcpClient.read( vd.rawData, sizeof(vd.rawData) );
 
@@ -259,7 +259,7 @@ void vdProcessCmd( void )
 
               if( vd.packet.status == VD_STATUS_OK )
               {
-                DBGA_PRINTLN( "WifiClient read data - Status OK" );
+                DBGA_PRINTLN( "Answer PC: WifiClient read data - Status OK" );
 
                 // Copy data to local buffer
                 memcpy( vdData.data, vd.packet.data, sizeof(vdData.data) );
@@ -268,7 +268,7 @@ void vdProcessCmd( void )
               }
               else
               {
-                DBGA_PRINTLN( "WifiClient Error" );
+                DBGA_PRINTLN( "Answer PC: WifiClient Error" );
               }
             }
           }
@@ -300,7 +300,7 @@ void vdProcessCmd( void )
 
           sendBuf[i+1] = ~checksum;
 
-          DBGS_PRINT( "Sent SPI data: " );
+          DBGS_PRINT( "Sent to Z80   : " );
           dumpSpiPacket( sendBuf );   // Debug
 
           if( i < numOfBytes ) { numOfBytes = i; }
@@ -347,7 +347,7 @@ void vdProcessCmd( void )
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
         // Debug
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         numOfBytes = dataBuf[1];
@@ -391,7 +391,7 @@ void vdProcessCmd( void )
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
         // Debug
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         offset     = dataBuf[1];
@@ -517,7 +517,7 @@ void vdProcessCmd( void )
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
         // Debug
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         numOfBytes = dataBuf[1];
@@ -599,7 +599,7 @@ void vdProcessCmd( void )
 
         vdStatus.rawStatus = SPI_STATUS_RESET;
 
-        DBGS_PRINT( "Rec. SPI data: " );
+        DBGS_PRINT( "Recv. from Z80: " );
         dumpSpiPacket( dataBuf );
 
         // Init checksum
