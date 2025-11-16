@@ -34,7 +34,7 @@
 
 
 /******************************************************************* Defines **/
-const char* VD_VERSION = "0.9.0";
+const char* VD_VERSION = "1.0.0";
 
 const uint8_t SS_ENABLE_PIN = D1;   // PIN for circuit blocking SS to GPIO15 on reset 
 const uint8_t Z80_RESET_PIN = D3;
@@ -261,7 +261,8 @@ void setup( void )
 
   if( tcpClient.connect( vdConfig.vdServer, atoi(vdConfig.vdPort) ) )
   {
-    Serial.println( F("Connected to WiFi-VirtDisk Server") );
+    Serial.print( F("Connected to WiFi-VirtDisk Server (") );
+    Serial.printf( "%s:%d).\n", vdConfig.vdServer, atoi(vdConfig.vdPort) );
   }
   else
   {
@@ -270,7 +271,8 @@ void setup( void )
 
   if( dbgClient.connect( vdConfig.vdServer, atoi(vdConfig.vdPort)+1 ) )
   {
-    Serial.println( F("Connected to WiFi-VirtDisk Debug Server.") );
+    Serial.print( F("Connected to WiFi-VirtDisk Debug Server (") );
+    Serial.printf( "%s:%d).\n", vdConfig.vdServer, atoi(vdConfig.vdPort)+1 );
   }
   else
   {
@@ -284,6 +286,8 @@ void setup( void )
   SPISlave.setStatus( vdStatus.rawStatus );
 }
 
+extern bool     spiDataRcvd;
+#define RECONNECT_TIME 5000
 
 /***************************************************************************//**
  * @brief   This is the main loop of the Arduino SDK.
@@ -293,9 +297,18 @@ void loop( void )
   static uint8_t  oldWifiStatus = WL_NO_SHIELD; 
   static uint16_t vdPort = atoi(vdConfig.vdPort);
 
+  static unsigned long lastReconnect = millis();
+  static unsigned long now;
+
 
   // Check WiFi status
   wifiStatus = WiFi.status();
+
+  // Process SPI command
+  if( spiDataRcvd )
+  {
+    vdProcessCmd( wifiStatus );
+  }
 
   if( wifiStatus == WL_CONNECTED )
   {
@@ -304,13 +317,14 @@ void loop( void )
     {
       if( ( tcpSrvStatus & SRV_DISCONNECTED ) == SRV_DISCONNECTED )
       {
-        DBG_PRINTLN( "Connected to WiFi-VirtDisk Server"); 
+        DBG_PRINT( "Connected to WiFi-VirtDisk Server (");
+        DBG_PRINTF( "%s:%d).\n", vdConfig.vdServer, vdPort );
       }
 
       tcpSrvStatus &= ~SRV_DISCONNECTED;
       tcpSrvStatus |= SRV_CONNECTED;
 
-      vdProcessCmd();
+      // vdProcessCmd();
     }
     else
     {
@@ -318,7 +332,9 @@ void loop( void )
       tcpSrvStatus |= SRV_DISCONNECTED;
 
       // Try to reconnect to the WiFi-VirtDisk Server
-      DBG_PRINTLN( "Lost connection to WiFi-VirtDisk Server. Try to reconnect..." );
+      DBG_PRINT( "Lost connection to WiFi-VirtDisk Server (" );
+      DBG_PRINTF( "%s:%d). Try to reconnect...\n", vdConfig.vdServer, vdPort );
+
       if( tcpClient.connect( vdConfig.vdServer, vdPort ) )
       {
         DBG_PRINTLN( "Reconnected to Server" );
@@ -326,7 +342,7 @@ void loop( void )
       else 
       {
         DBG_PRINTLN( "Reconnection to WiFi-VirtDisk Server failed" );
-        delay(2000);  // Wait 2 seconds before trying again.
+        // delay(2000);  // Wait 2 seconds before trying again.
       }
     }  
     
@@ -336,7 +352,8 @@ void loop( void )
     {
       if( ( tcpSrvStatus & DBG_SRV_DISCONNECTED ) == DBG_SRV_DISCONNECTED )
       {
-        DBG_PRINTLN( "Connected to WiFi-VirtDisk Debug Server"); 
+        DBG_PRINT( "Connected to WiFi-VirtDisk Debug Server (");
+        DBG_PRINTF( "%s:%d).\n", vdConfig.vdServer, vdPort+1 );
       }
       
       tcpSrvStatus &= ~DBG_SRV_DISCONNECTED;
@@ -383,7 +400,9 @@ void loop( void )
       tcpSrvStatus |= DBG_SRV_DISCONNECTED;
 
       // Try to reconnect to the WiFi-VirtDisk Server
-      DBG_PRINTLN( "Lost connection to WiFi-VirtDisk Debug Server. Try to reconnect..." );
+      DBG_PRINT( "Lost connection to WiFi-VirtDisk Debug Server (" );
+      DBG_PRINTF( "%s:%d). Try to reconnect...\n", vdConfig.vdServer, vdPort+1 );
+
       if( dbgClient.connect( vdConfig.vdServer, vdPort+1 ) )
       {
         DBG_PRINTLN( "Reconnected to Debug Server" );
@@ -391,14 +410,24 @@ void loop( void )
       else 
       {
         DBG_PRINTLN( "Reconnection to WiFi-VirtDisk Debug Server failed" );
-        delay(2000);  // Wait 2 seconds before trying again.
+        // delay(2000);  // Wait 2 seconds before trying again.
       }
     }  
   }  
   else
   {
     // Try to auto re-connect
-    wifiManager.autoConnect( "WiFi-VirtDisk Client AP" );
+    //wifiManager.autoConnect( "WiFi-VirtDisk Client AP" );
+    now = millis();
+    if( ( now - lastReconnect ) > RECONNECT_TIME )
+    {
+      lastReconnect = now;
+
+      WiFi.mode( WIFI_STA );
+      WiFi.begin();
+
+      delay(10);
+    }
   }
 
 

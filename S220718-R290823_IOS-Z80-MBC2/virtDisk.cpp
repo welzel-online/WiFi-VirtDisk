@@ -128,13 +128,13 @@ FRESULT vd_status( uint8_t* wifiStatus, uint8_t* srvStatus )
     attempts++;
 
     SELECT();                   // Enable CS
-    xmit_spi( SPI_WR_DATA );
+    xmit_spi( SPI_WR_DATA );    // ESP8266 Prefix-Bytes - Write Data
     xmit_spi( 0x00 );
 
     vdChecksum = 0xFF;
-    xmit_spi( VD_CMD_STATUS );  // Send command
+    xmit_spi( VD_CMD_STATUS );  // Byte 1: Send command
     vdChecksum += VD_CMD_STATUS;
-    xmit_spi( ~vdChecksum );    // Send checksum
+    xmit_spi( ~vdChecksum );    // Byte 2: Send checksum
     DESELECT();                 // Disable CS
 
     int8_t spiStat = waitReady_spi( true, "ST " );
@@ -151,14 +151,17 @@ FRESULT vd_status( uint8_t* wifiStatus, uint8_t* srvStatus )
         *srvStatus  = vdStatus.cmd_data;
 
         // WiFi-Status: WL_CONNECTED = 3
-        if( ( vdStatus.cmd_status == 3 ) && ( ( vdStatus.cmd_data & SRV_CONNECTED ) == SRV_CONNECTED ) )
+        if( ( vdStatus.cmd_status != WL_CONNECTED ) && ( ( vdStatus.cmd_data & SRV_CONNECTED ) != SRV_CONNECTED ) )
         {
-          status = FR_OK;
+          status = FR_NOT_READY;
         }
       }
       else
       {
         status = FR_NOT_READY;
+
+        *wifiStatus = 0xFF;
+        *srvStatus  = 0x00;
       }
       break;
     }
@@ -254,21 +257,21 @@ FRESULT vd_open (
     attempts++;
 
     SELECT();                     // Enable CS
-    xmit_spi( SPI_WR_DATA );
+    xmit_spi( SPI_WR_DATA );      // ESP8266 Prefix-Bytes - Write Data
     xmit_spi( 0x00 );
 
     vdChecksum = 0xFF;
-    xmit_spi( VD_CMD_SEL_FILE );  // Send command
+    xmit_spi( VD_CMD_SEL_FILE );  // Byte 1: Send command
     vdChecksum += VD_CMD_SEL_FILE;
     
-    while( *path != '\0' )        // Send filename
-    {
+    while( *path != '\0' )        // Byte 2+n: Send filename
+    {                             // n = length of filename
       xmit_spi( *path );
       vdChecksum += *path;
       path++;
     }
-    xmit_spi( 0x00 );             // Terminating Null
-    xmit_spi( ~vdChecksum );      // Send checksum
+    xmit_spi( 0x00 );             // Byte 3+n: Terminating Null
+    xmit_spi( ~vdChecksum );      // Byte 4+n: Send checksum
     DESELECT();                   // Disable CS
 
     // int8_t spiStat = waitReady_spi( true, "O " );
@@ -320,17 +323,17 @@ FRESULT vd_read (
     attempts++;
 
     SELECT();                   // Enable CS
-    xmit_spi( SPI_WR_DATA );
+    xmit_spi( SPI_WR_DATA );    // ESP8266 Prefix-Bytes - Write Data
     xmit_spi( 0x00 );
 
     vdChecksum = 0xFF;
-    xmit_spi( VD_CMD_RD_FILE ); // Send command
+    xmit_spi( VD_CMD_RD_FILE ); // Byte 1: Send command
     vdChecksum += VD_CMD_RD_FILE;
-    xmit_spi( offset );         // Send offset
+    xmit_spi( offset );         // Byte 2: Send offset
     vdChecksum += offset;
-    xmit_spi( 16 );             // Send number of bytes to read
+    xmit_spi( 16 );             // Byte 3: Send number of bytes to read
     vdChecksum += 16;
-    xmit_spi( ~vdChecksum );    // Send checksum
+    xmit_spi( ~vdChecksum );    // Byte 4: Send checksum
     DESELECT();                 // Disable CS
 
     int8_t spiStat = waitReady_spi( true, "R " );
@@ -343,21 +346,21 @@ FRESULT vd_read (
       // Serial.printf( "dataLen: %d - Data:\n\r", vdStatus.cmd_data );
 
       SELECT();                   // Enable CS
-      xmit_spi( SPI_RD_DATA );
+      xmit_spi( SPI_RD_DATA );    // ESP8266 Prefix-Bytes - Read Data
       xmit_spi( 0x00 );
 
       vdChecksum = 0;
-      vdChecksum += rcv_spi();    // Receive command
+      vdChecksum += rcv_spi();    // Byte 1: Receive command
 
       byte i;
       for( i = 0; ( (i < vdStatus.cmd_data) && (i < btr) ); i++ )
       {
-        buf[(offset*16)+i] = rcv_spi();       // Read data
+        buf[(offset*16)+i] = rcv_spi();       // Byte 2+n: Read data (n=vdStatus.cmd_data)
         vdChecksum += buf[(offset*16)+i];
 
         // Serial.printf( "\n\r%i:%i - 0x%02X - 0x%02X", offset, i, buf[(offset*16)+i], vdChecksum );
       }
-      vdChecksum += rcv_spi();    // Read checksum
+      vdChecksum += rcv_spi();    // Byte 3+n: Read checksum
       // Serial.printf( "\n\rChecksum 0x%02X", vdChecksum );
       DESELECT();                 // Disable CS
 
@@ -399,15 +402,15 @@ FRESULT vd_read (
     {
       // Finalize the read and set the read pointer
       SELECT();                   // Enable CS
-      xmit_spi( SPI_WR_DATA );
+      xmit_spi( SPI_WR_DATA );    // ESP8266 Prefix-Bytes - Write Data
       xmit_spi( 0x00 );
 
       vdChecksum = 0xFF;
-      xmit_spi( VD_CMD_RD_NEXT ); // Send command
+      xmit_spi( VD_CMD_RD_NEXT ); // Byte 1: Send command
       vdChecksum += VD_CMD_RD_NEXT;
-      xmit_spi( dataLen );        // Send data length
+      xmit_spi( dataLen );        // Byte 2: Send data length
       vdChecksum += dataLen;
-      xmit_spi( ~vdChecksum );    // Send checksum
+      xmit_spi( ~vdChecksum );    // Byte 3: Send checksum
       DESELECT();                 // Disable CS
 
       int8_t spiStat = waitReady_spi( true, "RN " );
@@ -458,28 +461,28 @@ FRESULT vd_write (
       attempts++;
 
       SELECT();                   // Enable CS
-      xmit_spi( SPI_WR_DATA );
+      xmit_spi( SPI_WR_DATA );    // ESP8266 Prefix-Bytes - Write Data
       xmit_spi( 0x00 );
 
       vdChecksum = 0xFF;
-      xmit_spi( VD_CMD_WR_FILE ); // Send command
+      xmit_spi( VD_CMD_WR_FILE ); // Byte 1: Send command
       vdChecksum += VD_CMD_WR_FILE;
-      xmit_spi( offset );         // Send offset
+      xmit_spi( offset );         // Byte 2: Send offset
       vdChecksum += offset;
-      xmit_spi( 16 );             // Send number of bytes to write
+      xmit_spi( 16 );             // Byte 3: Send number of bytes to write
       vdChecksum += 16;
 
       // Send data
       byte i;
       for( byte i = 0; i < 16; i++ )
       {
-        xmit_spi( buf[(offset*16)+i] );       // Write data
+        xmit_spi( buf[(offset*16)+i] );       // Byte 4+n: Write data (n=16)
         vdChecksum += buf[(offset*16)+i];
         
         // Serial.printf( "\n\r%i:%i - 0x%02X - 0x%02X", offset, i, buf[(offset*16)+i], vdChecksum );
       }
 
-      xmit_spi( ~vdChecksum );    // Send checksum
+      xmit_spi( ~vdChecksum );    // Byte 5+n: Send checksum
       DESELECT();                 // Disable CS
     
       int8_t spiStat = waitReady_spi( true, "W " );
@@ -519,15 +522,15 @@ FRESULT vd_write (
     {
       // Finalize the read and set the read pointer
       SELECT();                   // Enable CS
-      xmit_spi( SPI_WR_DATA );
+      xmit_spi( SPI_WR_DATA );    // ESP8266 Prefix-Bytes - Write Data
       xmit_spi( 0x00 );
 
       vdChecksum = 0xFF;
-      xmit_spi( VD_CMD_WR_NEXT ); // Send command
+      xmit_spi( VD_CMD_WR_NEXT ); // Byte 1: Send command
       vdChecksum += VD_CMD_WR_NEXT;
-      xmit_spi( dataLen );        // Send data length
+      xmit_spi( dataLen );        // Byte 2: Send data length
       vdChecksum += dataLen;
-      xmit_spi( ~vdChecksum );    // Send checksum
+      xmit_spi( ~vdChecksum );    // Byte 3: Send checksum
       DESELECT();                 // Disable CS
 
       int8_t spiStat = waitReady_spi( true, "WN " );
@@ -558,29 +561,29 @@ FRESULT vd_lseek (
   uint8_t attempts = 0;
 
 
-  // VD_CMD_SEEK_DISK
+  // VD_CMD_SEEK_FILE
   do 
   {
     attempts++;
 
     SELECT();                         // Enable CS
-    xmit_spi( SPI_WR_DATA );
+    xmit_spi( SPI_WR_DATA );          // ESP8266 Prefix-Bytes - Write Data
     xmit_spi( 0x00 );
 
     vdChecksum = 0xFF;
-    xmit_spi( VD_CMD_SEEK_FILE );     // Send command
+    xmit_spi( VD_CMD_SEEK_FILE );     // Byte 1: Send command
     vdChecksum += VD_CMD_SEEK_FILE;
 
-    xmit_spi( ( ofs >> 24 ) & 0xFF ); // Send high byte (4th)
-    xmit_spi( ( ofs >> 16 ) & 0xFF ); // Send mid-high byte (3rd)
-    xmit_spi( ( ofs >> 8 ) & 0xFF );  // Send mid-low byte (2nd)
-    xmit_spi( ofs & 0xFF );           // Send low byte (1st)
+    xmit_spi( ( ofs >> 24 ) & 0xFF ); // Byte 2: Send high byte (4th)
+    xmit_spi( ( ofs >> 16 ) & 0xFF ); // Byte 3: Send mid-high byte (3rd)
+    xmit_spi( ( ofs >> 8 ) & 0xFF );  // Byte 4: Send mid-low byte (2nd)
+    xmit_spi( ofs & 0xFF );           // Byte 5: Send low byte (1st)
     vdChecksum += ( ( ofs >> 24 ) & 0xFF );
     vdChecksum += ( ( ofs >> 16 ) & 0xFF );
     vdChecksum += ( ( ofs >> 8 ) & 0xFF );
     vdChecksum += ( ofs & 0xFF );
 
-    xmit_spi( ~vdChecksum );          // Send checksum
+    xmit_spi( ~vdChecksum );          // Byte 6: Send checksum
     DESELECT();                       // Disable CS
 
     // int8_t spiStat = waitReady_spi( true, "LS " );

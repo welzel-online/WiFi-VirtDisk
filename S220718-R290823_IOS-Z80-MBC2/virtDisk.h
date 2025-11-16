@@ -79,6 +79,19 @@ enum vdStatus
 };
 
 
+// Defines from wl_definitions (ESP8266 project)
+typedef enum {
+    WL_NO_SHIELD        = 255,   // for compatibility with WiFi Shield library
+    WL_IDLE_STATUS      = 0,
+    WL_NO_SSID_AVAIL    = 1,
+    WL_SCAN_COMPLETED   = 2,
+    WL_CONNECTED        = 3,
+    WL_CONNECT_FAILED   = 4,
+    WL_CONNECTION_LOST  = 5,
+    WL_WRONG_PASSWORD   = 6,
+    WL_DISCONNECTED     = 7
+} wl_status_t;
+
 /********************************************************** Global Variables **/
 
 /******************************************************* Functions / Methods **/

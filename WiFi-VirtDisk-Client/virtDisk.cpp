@@ -78,7 +78,7 @@ bool waitForTcpData( void )
 /***************************************************************************//**
  * @brief   Process the client command.
  ******************************************************************************/
-void vdProcessCmd( void )
+void vdProcessCmd( uint8_t wifiStatus )
 {
   static uint8_t  dataLen;    // Data length for write operation
   uint32_t        savedPS;    // Interrupt status

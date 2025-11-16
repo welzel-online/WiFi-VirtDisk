@@ -101,7 +101,7 @@ typedef struct
 
 /******************************************************* Functions / Methods **/
 bool waitForTcpData( void );
-void vdProcessCmd( void );
+void vdProcessCmd( uint8_t wifiStatus );
 
 
 #endif

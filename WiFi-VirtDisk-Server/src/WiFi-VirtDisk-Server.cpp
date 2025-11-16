@@ -211,7 +211,10 @@ void handleDbgClient( ASocket::Socket clientSocket, CTCPServer* server, std::str
     int ret;
 
 
-    server->SetRcvTimeout( clientSocket, 0 );
+    int flag = 1;
+    setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int));
+
+    server->SetRcvTimeout( clientSocket, 100 );
 
     while( gSrvRunning )
     {
@@ -276,6 +279,8 @@ void handleTcpClient( ASocket::Socket clientSocket, CTCPServer* server, std::str
     int bytesReceived;
     int ret;
 
+    int flag = 1;
+    setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int));
 
     server->SetRcvTimeout( clientSocket, 100 );
 
@@ -292,10 +297,18 @@ void handleTcpClient( ASocket::Socket clientSocket, CTCPServer* server, std::str
 
         if( bytesReceived > 0 )
         {
+            //std::cout << "Bytes received from ESP8266: " << bytesReceived << std::endl;
+
             ret = vdProcessCmd( buffer );
             if( ret == 0 )
             {
+                //std::cout << "Sending response to ESP8266: " << sizeof(vdPacket_t) << std::endl;
+
                 server->Send( clientSocket, buffer, sizeof(vdPacket_t) );
+            }
+            else
+            {
+                //std::cout << "Error processing command from ESP8266" << std::endl;
             }
         }
         else if( bytesReceived == 0 )

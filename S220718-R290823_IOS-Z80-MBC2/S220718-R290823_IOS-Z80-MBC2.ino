@@ -99,6 +99,8 @@ S220718-R290823   Added Fuzix OS support (www.fuzix.org):
   S220718-R290823-W010925 - Welzel-Online
                   Added support for configurable start address of the AUTOBOOT.BIN.
                   Added support for WiFi-Virt-Disk (https://www.welzel-online.ch)
+  S220718-R290823-W131125 - Welzel-Online
+                  Better error handling for WiFi-Virt-Disk at start-up.
 
 --------------------------------------------------------------------------------- */
 
@@ -476,7 +478,7 @@ void setup()
   
   // Print some system information
   Serial.begin(indexToBaud(EEPROM.read(serBaudAddr)));
-  Serial.println(F("\r\n\nZ80-MBC2 - A040618\r\nIOS - I/O Subsystem - S220718-R290823-W010925\r\n"));
+  Serial.println(F("\r\n\nZ80-MBC2 - A040618\r\nIOS - I/O Subsystem - S220718-R290823-W131125\r\n"));
 
   if(virtDiskFlag)
   {
@@ -509,23 +511,86 @@ void setup()
 
   // Wait for WiFi-VirtDisk
   uint8_t virtDiskStatus;
-  uint8_t wifiStatus;
-  uint8_t srvStatus;
-  uint8_t retryCnt = 5;
+  uint8_t wifiStatus; // = 0xFE;
+  uint8_t oldWifiStatus = 0; //WL_NO_SHIELD;
+  uint8_t srvStatus; // = 0xFE;
+  uint8_t oldSrvStatus = 0xFF;
+  // uint8_t retryCnt = 5;
 
   if( virtDiskFlag )
   {
+    virtDiskStatus = vd_status( &wifiStatus, &srvStatus );
+    // Serial.printf( "First wifiStatus: %d, oldWifiStatus: %d, srvStatus %d, oldSrvStatus: %d\r\n", wifiStatus, oldWifiStatus, srvStatus, oldSrvStatus );
+    if( virtDiskStatus == FR_NOT_READY )
+    {
+      Serial.println( F("IOS: Waiting for WiFi-VirtDisk... Press ESC to cancel.") );
+    }
+
     do 
     {
+      // Keyboard
+      inChar = Serial.read();
+      if( inChar == 0x1B )
+      { 
+        // Serial.printf( F("Break") );
+        break; 
+      }
+
+      delay( 1000 );
+
       virtDiskStatus = vd_status( &wifiStatus, &srvStatus );
-      if( virtDiskStatus == FR_NOT_READY )
+      // Serial.printf( "vdStatus: %d, wifiStatus: %d, oldWifiStatus: %d, srvStatus %d, oldSrvStatus: %d\r\n", virtDiskStatus, wifiStatus, oldWifiStatus, srvStatus, oldSrvStatus );
+      if( virtDiskStatus == FR_OK ) 
       {
-        Serial.printf( "WiFi-VirtDisk not Ready. WiFi-Status: %d, Server-Status: %d - Waiting...\r\n", wifiStatus, srvStatus );
-        delay(500);
-        retryCnt--;
+      if( wifiStatus != oldWifiStatus )
+      {
+        // Serial.println( F("Servus!") );
+
+        switch( wifiStatus )
+        {
+          case 0xFF:
+            Serial.println( F("IOS: WiFi-VirtDisk is not running (probably booting).") );
+          break;
+
+          case WL_CONNECTED:
+            Serial.println( F("IOS: WiFi-VirtDisk is running and connected to the WiFi.") );
+          break;
+
+          default:
+          break;
+        }
+
+        oldWifiStatus = wifiStatus;
+      }
+
+      if( ( wifiStatus == WL_CONNECTED ) && ( srvStatus != oldSrvStatus ) )
+      {
+        if( ( srvStatus & 0x01 ) == 0x01 )
+        {
+          Serial.println( F("IOS: WiFi-VirtDisk connected to server.") );
+        }
+        else 
+      {
+          Serial.println( F("IOS: WiFI-VirtDisk is not connected to server.") );
+        }
+        // WiFi-Status: %d, Server-Status: %d - Waiting...\r\n", wifiStatus, srvStatus );
+  
+        oldSrvStatus = srvStatus;
       }
       
-    } while( ( virtDiskStatus != FR_OK ) && ( retryCnt != 0 ) );
+      // // Keyboard
+      // inChar = Serial.read();
+      // if( inChar == 0x1B )
+      // { 
+      //   Serial.printf( F("Break") );
+      //   break; 
+      // }
+
+      }
+      
+      // Serial.printf( "virtDiskStatus: %d, wifiSatus %d, srvStatus: %d\r\n", virtDiskStatus, wifiStatus, srvStatus );
+      
+    } while( ( wifiStatus != WL_CONNECTED ) || ( ( srvStatus & 0x01 ) != 0x01 ) );
   }
 
   // ----------------------------------------
